@@ -34,8 +34,6 @@ dealt = set()
 com_dealt = set()
 
 
-
-
 def deal(num_card, card_num):
  uno=1
  while num_card>0:
@@ -48,9 +46,6 @@ def deal(num_card, card_num):
      card_num+=1
      time.sleep(1)
      num_card-=1
-
-
-
 
 def com_deal(num_card, card_num):
  uno=1
@@ -78,13 +73,14 @@ def betting(total_money):
    print("All In")
  return total_money
 
-
-
-
 def game_time(current_bet, total_money):
  global ai
  if total_money!=0:
-   keepings=input("Do you want to Fold, Call, Check, All In, or Raise? ")
+   if current_bet==0:
+    CallOrCheck="Check"
+   elif current_bet>0:
+    CallOrCheck="Call"
+   keepings=input("Do you want to Fold, "+CallOrCheck+", All In, or Raise? ")
    keepings_=str(keepings).lower()
    if keepings_=="fold":
      print("You folded with " + str(total_money) + "$")
@@ -126,9 +122,6 @@ def game_time(current_bet, total_money):
      game_time(current_bet, total_money)
  return total_money
 
-
-
-
 def river(river_num, card_num):
  while river_num > 0:
    global ai
@@ -159,9 +152,6 @@ def river(river_num, card_num):
        river_num-=1
  return list(dealt)
 
-
-
-
 def other_gambling(total_money):
  global ai
  y=random.randint(1,100)
@@ -185,8 +175,6 @@ def other_gambling(total_money):
  elif ai=="y":
    pass
  
-
-
 def hands():
  hand_value=0
  time.sleep(2)
@@ -249,9 +237,6 @@ def hands():
    pass
  return hand_value
 
-
-
-
 def com_hands():
  comhand_value=0
  time.sleep(2)
@@ -308,8 +293,13 @@ def com_hands():
    comhand_value=0
  return comhand_value
 
-
-
+def playagan():
+  play_gan=input("Want to play again? ")
+  play_gan=play_gan.lower()
+  if play_gan=="yes" or "y":
+    loop(total_money)
+  elif play_gan=="no" or "n":
+    sys.exit()
 
 def loop(total_money):
  global ai
@@ -347,10 +337,7 @@ def loop(total_money):
      print("You have " + str(total_money)+"$ left")
      play_gan=input("Want to play again? ")
      play_gan=play_gan.lower()
-     if play_gan=="yes":
-       loop(total_money)
-     elif play_gan=="no":
-       sys.exit()
+    
    else:
      print("You have 0$ left\nUr a Brokie, get out of here")
  elif hand_value>comhand_value:
@@ -358,36 +345,13 @@ def loop(total_money):
    am_won=(total_money-start_money)*-2+total_money
    print("You Won "+ str(am_won) + "$")
    total_money=am_won
-   play_gan=input("Want to play again? ")
-   play_gan=play_gan.lower()
-   if play_gan=="yes" or "y":
-     loop(total_money)
-   elif play_gan=="no" or "n":
-     sys.exit()
+   playagan()
  elif hand_value==comhand_value:
    print("You tied")
    am_won=((total_money-start_money)*-1)//2
    print("You get " + str(am_won) + "$ back")
    total_money=am_won
-   play_gan=input("Want to play again? ")
-   play_gan=play_gan.lower()
-   if play_gan=="yes" or "y":
-     loop(total_money)
-   elif play_gan=="no" or "n":
-     sys.exit()
+   playagan()
 time.sleep(1)
 print("\nWelcome to Pokeria!")
 loop(total_money)
-
-
-
-
-
-
-
-
-
-
-
-
-
