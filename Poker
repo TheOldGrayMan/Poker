@@ -195,9 +195,7 @@ def hands():
  rank_values = sorted(set(rank_values))
  pair_count = list(rank_counts.values()).count(2)
 
-
-
-
+ high_card_value=int(rank_values[-1])
  x=1
  for i in range(1, len(rank_values)):
    if rank_values[i]==rank_values[i-1]+1:
@@ -207,7 +205,9 @@ def hands():
        hand_value=4
    else:
      x=1
- if 5 in suit_counts.values():
+ if hand_value==4:
+   pass
+ elif 5 in suit_counts.values():
    print("\nYou have a Flush")
    hand_value=5
    pass
@@ -231,11 +231,7 @@ def hands():
    print("\nYou have a Pair")
    hand_value=1
    pass
- else:
-   print("You had nothing")
-   hand_value=0
-   pass
- return hand_value
+ return hand_value, high_card_value
 
 def com_hands():
  comhand_value=0
@@ -257,8 +253,7 @@ def com_hands():
  rank_values = sorted(set(rank_values))
  pair_count = list(rank_counts.values()).count(2)
 
-
-
+ com_high_card_value=int(rank_values[-1])
 
  x=1
  for i in range(1, len(rank_values)):
@@ -288,18 +283,19 @@ def com_hands():
  elif 2 in rank_counts.values():
    print("Computor has a Pair")
    comhand_value=1
- else:
-   print("Computor had nothing")
-   comhand_value=0
- return comhand_value
+ 
+ return comhand_value, com_high_card_value
 
-def playagan():
+def playagan(total_money):
   play_gan=input("Want to play again? ")
   play_gan=play_gan.lower()
-  if play_gan=="yes" or "y":
+  if play_gan=="yes" or "y" or "yep" or "yeah" or "sure" or "yessir" or "yes please":
     loop(total_money)
-  elif play_gan=="no" or "n":
+  elif play_gan=="no" or "n" or "nope" or "no thank you":
     sys.exit()
+  else:
+    print("Invalid Response")
+    playagan()
 
 def loop(total_money):
  global ai
@@ -310,7 +306,7 @@ def loop(total_money):
  card_num=0
  current_bet=0
  time.sleep(1)
- print("You have " + str(total_money) + "$")
+ print("\nYou have " + str(total_money) + "$")
  time.sleep(1)
  print("Its Time to Play!")
  time.sleep(1)
@@ -328,30 +324,52 @@ def loop(total_money):
  river(1,5)
  current_bet=other_gambling(total_money)
  total_money=game_time(current_bet, total_money)
- hand_value=hands()
- comhand_value=com_hands()
+ hand_value, high_card_value=hands()
+ comhand_value, com_high_card_value=com_hands()
  time.sleep(1)
- if comhand_value>hand_value:
+ if comhand_value==0 and hand_value==0:
+  if com_high_card_value>high_card_value:
+    print("Computor has high card")
+    print("You lose")
+    if total_money>0:
+     print("You have " + str(total_money)+"$ left")
+     play_gan=input("Want to play again? ")
+     play_gan=play_gan.lower()
+    else:
+     print("You have 0$ left\nUr a Brokie, get out of here")
+  elif com_high_card_value<high_card_value:
+    print("You have high card!\nYou Win!")
+    am_won=(total_money-start_money)*-2
+    print("You Won "+ str(am_won) + "$")
+    am_won+=total_money
+    total_money=am_won
+    playagan(total_money)
+  elif com_high_card_value==high_card_value:
+    print("You tied")
+
+ elif comhand_value>hand_value:
    print("Computor Wins")
    if total_money>0:
      print("You have " + str(total_money)+"$ left")
      play_gan=input("Want to play again? ")
      play_gan=play_gan.lower()
-    
+     print("You get it all back")
+     total_money=start_money
+     playagan(total_money)
    else:
      print("You have 0$ left\nUr a Brokie, get out of here")
  elif hand_value>comhand_value:
    print("You Win!")
-   am_won=(total_money-start_money)*-2+total_money
+   am_won=(total_money-start_money)*-2
    print("You Won "+ str(am_won) + "$")
+   am_won+=total_money
    total_money=am_won
-   playagan()
+   playagan(total_money)
  elif hand_value==comhand_value:
    print("You tied")
-   am_won=((total_money-start_money)*-1)//2
-   print("You get " + str(am_won) + "$ back")
-   total_money=am_won
-   playagan()
+   print("You get it all back")
+   total_money=start_money
+   playagan(total_money)
 time.sleep(1)
 print("\nWelcome to Pokeria!")
 loop(total_money)
