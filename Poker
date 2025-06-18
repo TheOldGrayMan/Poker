@@ -298,9 +298,9 @@ def com_hands():
 def playagan(total_money):
   play_gan=input("Want to play again? ")
   play_gan=play_gan.lower()
-  if play_gan=="yes" or "y" or "yep" or "yeah" or "sure" or "yessir" or "yes please":
+  if play_gan=="yes" or play_gan=="y" or play_gan=="yep" or play_gan=="yeah" or play_gan=="sure" or play_gan=="yessir" or play_gan=="yes please":
     loop(total_money)
-  elif play_gan=="no" or "n" or "nope" or "no thank you":
+  elif play_gan=="no" or play_gan=="n" or play_gan=="nope" or play_gan=="no thank you":
     sys.exit()
   else:
     print("Invalid Response")
