@@ -10,13 +10,23 @@ Next, variables are initialized. The money you start with, the money you have in
 Next we have the dictionarys, the first is cards, showing all of the cards and their numerical value, and the second being the suits. And the sets, blank at first, that are used to store the cards dealt so far.
 
 Now the functions, they are all defined in my planner, but ill sumarise them here. 
--First deal(), used to deal out your two cards. 
--Second, comdeal(), used to deal the computors two cards, done behind the scenes so you dont actually know their hand. 
+
+-deal(), used to deal out your two cards. 
+
+-comdeal(), used to deal the computors two cards, done behind the scenes so you dont actually know their hand. 
+
 -Betting(),used to allow you to make the initial bet in the first round
+
 -game_timw(), used to allow the user to make a decision wether they want to call, fold, check, raise, or go all in.
+
 -river(), used to deal out the community cards.
+
 -other_gambling(), used to create the computer bet, uses simple logic to make a somewhat educated bet.
+
 -hands(), used to evaluate your cards to find out what hand you have, then give it a value
+
 -com_hands(), used to evaluate the computors cards to find what hand they have and assign a value.
+
 -playagan(), used to loop the code once the user plays  
+
 -loop(), used to run all of the functions, this is where the game is played, in playagan, this is the function that is looped.
