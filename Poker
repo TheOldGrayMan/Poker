@@ -92,6 +92,9 @@ def game_time(current_bet, total_money):
      elif play_gan=="no" or play_gan=="n":
        sys.exit()
    elif keepings_=="call":
+     if total_money<current_bet:
+      print("You do not have enough money to call\nIf you wish to bet the remainder of your money, go all in.")
+      return game_time(current_bet, total_money)
      bet=current_bet
      total_money-= bet
      print("You bet", str(bet)+"$")
@@ -99,28 +102,32 @@ def game_time(current_bet, total_money):
      if total_money==0:
        ai="y"
    elif keepings_=="check":
+     if total_money<current_bet:
+      print("You do not have enough money to call\nIf you wish to bet the remainder of your money, go all in.")
+      return game_time(current_bet, total_money)
      bet=current_bet
      total_money=total_money-bet
      print("You bet", str(bet)+"$")
      print("You have " + str(total_money) + "$ left")
    elif keepings_=="raise":
      bet=10000000
-     while bet>total_money:
-       bet=int(input("\nHow much do you want to bet?\nMust be higher than "+ str(current_bet) + ": "))
-       if bet>total_money:
-         print("Not enough money, try again.")
-     total_money=total_money-bet
+     bet=int(input("\nHow much do you want to bet?\nMust be higher than "+ str(current_bet) + ": "))
+     if bet<current_bet or bet>total_money:
+       print("Either you didnt actually raise, or you do not have enough money, try again.")
+       return game_time(current_bet, total_money)
+     elif bet>current_bet and bet<total_money:
+      total_money=total_money-bet
      if total_money==0:
        ai="y"
        print("All in\n")
-     print("You have " + str(total_money) + "$ left")
+     print("You have " + str(total_money) + "$ left i ran")
    elif keepings_=="all in":
      total_money=0
      ai="y"
      print("\nAll In\n")
    else:
      print("Invalid input")
-     game_time(current_bet, total_money)
+     return game_time(current_bet, total_money)
  return total_money
 
 def river(river_num, card_num):
@@ -176,7 +183,7 @@ def other_gambling(total_money):
    print("Computer bet is", str(current_bet) + "$")
    return current_bet
  elif ai=="y":
-   pass
+   return 0
  
 def hands():
  hand_value=0
@@ -192,7 +199,7 @@ def hands():
  rank_values = []
  for rank in ranks:
      if isinstance(cards[rank], list):
-         rank_values.append(cards[rank][1])
+         rank_values.extend(cards[rank])
      else:
          rank_values.append(cards[rank])
  rank_values = sorted(set(rank_values))
