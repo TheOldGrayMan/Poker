@@ -1,0 +1,404 @@
+
+from collections import Counter
+import sys
+import random
+import time
+total_money=50000
+start_money=50000
+card_num=0
+current_bet=0
+ai="n"
+cards = {
+   "Ace":[1 , 14],
+   "King":13,
+   "Queen":12,
+   "Jack":11,
+   "10":10,
+   "9":9,
+   "8":8,
+   "7":7,
+   "6":6,
+   "5":5,
+   "4":4,
+   "3":3,
+   "2":2
+ }
+suits = {
+   "hearts" : "red",
+   "spades" : "black",
+   "diamonds" : "red",
+   "clubs" : "black"
+ }
+
+
+dealt = set()
+com_dealt = set()
+
+#deal is a function that deals your cards, taking the number of cards you want and the card you're at to ensure that it doesnt print your third card as the first. It returns nothing, but adds to sets.
+def deal(num_card, card_num):
+ print("-"*40)
+ while num_card>0:
+   card=random.choice(list(cards.keys()))
+   card_suit=random.choice(list(suits.keys()))
+   card_key=f"{card} of {card_suit}"
+   if card_key not in dealt:
+     dealt.add(card_key)
+     print(f"Hole Card #{card_num} is a {card} of {card_suit}")
+     card_num+=1
+     time.sleep(1)
+     num_card-=1
+ print("-"*40)
+
+#com_deal deals the computor cards, taking the same perameters as the deal function, and adding the dealt cards to a set.
+def com_deal(num_card, card_num):
+ uno=1
+ while num_card>0:
+   card=random.choice(list(cards.keys()))
+   card_suit=random.choice(list(suits.keys()))
+   card_key=f"{card} of {card_suit}"
+   if card_key not in com_dealt:
+     com_dealt.add(card_key)
+     card_num+=1
+     num_card-=1
+  
+#betting takes the bet you want to make in the first round, taking your total money as a parameter and returning your money after the bet
+def betting(total_money):
+ global ai
+ bet=int(input("\nHow much do you want to bet? "))
+ while bet>total_money or bet<0:
+   print("Invalid bet, either you do not have enough money or you attempted to bet negative money, please try again")
+   bet=int(input("\nHow much do you want to bet? "))
+  
+ total_money=total_money-bet
+ print("You have "+str(total_money)+"$ left\n")
+ if total_money==0:
+   ai="y"
+ if ai=="y":
+   print("All In")
+ return total_money
+
+#game_time takes current_bet and total_money as parameter and uses them to allow the user to call, raise, check, fold or go all in.
+def game_time(current_bet, total_money):
+ global ai
+ if total_money!=0:
+   if current_bet==0:
+    CallOrCheck="Check"
+   elif current_bet>0:
+    CallOrCheck="Call"
+   keepings=input("Do you want to Fold, "+CallOrCheck+", All In, or Raise? ")
+   keepings_=str(keepings).lower()
+   if keepings_=="fold":
+     print("You folded with " + str(total_money) + "$")
+     play_gan=input("Want to play again? ")
+     play_gan=play_gan.lower()
+     if play_gan=="yes" or play_gan=="y":
+       loop(total_money)
+     elif play_gan=="no" or play_gan=="n":
+       sys.exit()
+   elif keepings_=="call":
+     if total_money<current_bet:
+      print("You do not have enough money to call\nIf you wish to bet the remainder of your money, go all in.")
+      return game_time(current_bet, total_money)
+     bet=current_bet
+     total_money-= bet
+     print("You bet", str(bet)+"$")
+     print("You have " + str(total_money) + "$ left\n")
+     if total_money==0:
+       ai="y"
+   elif keepings_=="check":
+     if total_money<current_bet:
+      print("You do not have enough money to call\nIf you wish to bet the remainder of your money, go all in.")
+      return game_time(current_bet, total_money)
+     bet=current_bet
+     total_money=total_money-bet
+     print("You bet", str(bet)+"$")
+     print("You have " + str(total_money) + "$ left")
+   elif keepings_=="raise":
+     bet=10000000
+     bet=int(input("\nHow much do you want to bet?\nMust be higher than "+ str(current_bet) + ": "))
+     if bet<current_bet or bet>total_money:
+       print("Either you didnt actually raise, or you do not have enough money, try again.")
+       return game_time(current_bet, total_money)
+     elif bet>current_bet and bet<total_money:
+      total_money=total_money-bet
+     if total_money==0:
+       ai="y"
+       print("All in\n")
+     print("You have " + str(total_money) + "$ left i ran")
+   elif keepings_=="all in":
+     total_money=0
+     ai="y"
+     print("\nAll In\n")
+   else:
+     print("Invalid input")
+     return game_time(current_bet, total_money)
+ return total_money
+
+#river makes the comunity cards, taking the number of cards it should print and the number its at as parameters, printing the community cards and adding it to the dealty cards set.
+def river(river_num, card_num):
+ print("-"*40)
+ while river_num > 0:
+   global ai
+   card=random.choice(list(cards.keys()))
+   card_suit=random.choice(list(suits.keys()))
+   card_key=f"{card} of {card_suit}"
+   if card_key not in dealt:
+     if card_num == 4:
+       dealt.add(card_key)
+       com_dealt.add(card_key)
+       print("Turn #"+ str(card_num), "is a", card, "of", card_suit)
+       card_num+=1
+       time.sleep(1)
+       river_num-=1
+     elif card_num == 5:
+       dealt.add(card_key)
+       com_dealt.add(card_key)
+       print("River #"+ str(card_num), "is a", card, "of", card_suit)
+       card_num+=1
+       time.sleep(1)
+       river_num-=1
+     else:
+       dealt.add(card_key)
+       com_dealt.add(card_key)
+       print("Flop #"+ str(card_num), "is a", card, "of", card_suit)
+       card_num+=1
+       time.sleep(1)
+       river_num-=1
+ print("-"*40+"\n")
+ return list(dealt)
+
+#other_gambling is the function that creates the current bet, using simple logic it makes an educated bet.
+def other_gambling(total_money):
+ global ai
+ y=random.randint(1,100)
+ if ai=="n":
+   if y<=10:
+     current_bet=0
+   elif y<=50:
+     current_bet=1000
+   elif y<=92:
+     current_bet=5000
+   elif y<=97:
+     current_bet=10000
+   elif y<=99:
+     current_bet=20000
+   elif y==100:
+     current_bet=45000
+   else:
+     current_bet=total_money
+   print("Computer bet is", str(current_bet) + "$")
+   return current_bet
+ elif ai=="y":
+   return 0
+ 
+#hands evaluates hand values and returns it
+def hands():
+ hand_value=0
+ time.sleep(2)
+ ranks = []
+ suits = []
+ for card in dealt:
+       rank, _, suit = card.partition(" of ")
+       ranks.append(rank)
+       suits.append(suit)
+ rank_counts = Counter(ranks)
+ suit_counts = Counter(suits)
+ rank_values = []
+ for rank in ranks:
+     if isinstance(cards[rank], list):
+         rank_values.extend(cards[rank])
+     else:
+         rank_values.append(cards[rank])
+ rank_values = sorted(set(rank_values))
+ pair_count = list(rank_counts.values()).count(2)
+
+ high_card_value=int(rank_values[-1])
+ x=1
+ for i in range(1, len(rank_values)):
+   if rank_values[i]==rank_values[i-1]+1:
+     x=x+1
+     if x==5:
+       print("\nYou have a Straight")
+       hand_value=4
+   else:
+     x=1
+ if hand_value==4:
+   pass
+ elif 5 in suit_counts.values():
+   print("\nYou have a Flush")
+   hand_value=5
+   pass
+ elif 4 in rank_counts.values():
+   print("\nYou have a Four of a kind")
+   hand_value=7
+   pass
+ elif 3 in rank_counts.values() and 2 in rank_counts.values():
+   print("\nYou have a full house")
+   hand_value=6
+   pass
+ elif 3 in rank_counts.values():
+   print("\nYou have a three of a kind")
+   hand_value=3
+   pass
+ elif pair_count==2:
+   print("\nYou have Two Pair")
+   hand_value=2
+   pass
+ elif 2 in rank_counts.values():
+   print("\nYou have a Pair")
+   hand_value=1
+   pass
+ return hand_value, high_card_value
+
+#Com hands evaluates the computers hand and returns it
+def com_hands():
+ comhand_value=0
+ time.sleep(2)
+ ranks = []
+ suits = []
+ for card in com_dealt:
+       rank, _, suit = card.partition(" of ")
+       ranks.append(rank)
+       suits.append(suit)
+ rank_counts = Counter(ranks)
+ suit_counts = Counter(suits)
+ rank_values = []
+ for rank in ranks:
+     if isinstance(cards[rank], list):
+         rank_values.append(cards[rank][1])
+     else:
+         rank_values.append(cards[rank])
+ rank_values = sorted(set(rank_values))
+ pair_count = list(rank_counts.values()).count(2)
+
+ com_high_card_value=int(rank_values[-1])
+ x=1
+ for i in range(1, len(rank_values)):
+   if rank_values[i]==rank_values[i-1]+1:
+     x=x+1
+     if x==5:
+       print("\nComputer has a Straight")
+       comhand_value=4
+   else:
+     x=1
+ if comhand_value==4:
+   pass
+ elif 5 in suit_counts.values():
+   print("\nComputer has a Flush")
+   comhand_value=5
+   pass
+ elif 4 in rank_counts.values():
+   print("\nComputer has a Four of a kind")
+   comhand_value=7
+   pass
+ elif 3 in rank_counts.values() and 2 in rank_counts.values():
+   print("\nComputer has a full house")
+   comhand_value=6
+   pass
+ elif 3 in rank_counts.values():
+   print("\nComputer has a three of a kind")
+   comhand_value=3
+   pass
+ elif pair_count==2:
+   print("\nComputer has Two Pair")
+   comhand_value=2
+   pass
+ elif 2 in rank_counts.values():
+   print("\nComputer has a Pair")
+   comhand_value=1
+   pass
+ 
+ return comhand_value, com_high_card_value
+
+#This is used to loop the code, using the total money as a parameter to ensure that it is not lost.
+def playagan(total_money):
+  play_gan=input("Want to play again? ")
+  play_gan=play_gan.lower()
+  if play_gan=="yes" or play_gan=="y" or play_gan=="yep" or play_gan=="yeah" or play_gan=="sure" or play_gan=="yessir" or play_gan=="yes please":
+    loop(total_money)
+  elif play_gan=="no" or play_gan=="n" or play_gan=="nope" or play_gan=="no thank you":
+    sys.exit()
+  else:
+    print("Invalid Response")
+    playagan()
+
+#This is the meat of the code, where all of the functions are brought together and run
+def loop(total_money):
+ global ai
+ ai="n"
+ start_money=total_money
+ dealt.clear()
+ com_dealt.clear()
+ card_num=0
+ current_bet=0
+ time.sleep(1)
+ print("\nYou have " + str(total_money) + "$")
+ time.sleep(1)
+ print("Its Time to Play!")
+ time.sleep(1)
+ print("Heres the Deal\n")
+ time.sleep(1)
+ deal(2,1)
+ com_deal(2,1)
+ total_money=betting(total_money)
+ river(3,1)
+ current_bet=other_gambling(total_money)
+ total_money=game_time(current_bet, total_money)
+ river(1,4)
+ current_bet=other_gambling(total_money)
+ total_money=game_time(current_bet, total_money)
+ river(1,5)
+ current_bet=other_gambling(total_money)
+ total_money=game_time(current_bet, total_money)
+ hand_value, high_card_value=hands()
+ comhand_value, com_high_card_value=com_hands()
+ time.sleep(1)
+ if comhand_value==0 and hand_value==0:
+  if com_high_card_value>high_card_value:
+    print("Computer has high card")
+    print("You lose")
+    if total_money>0:
+     print("You have " + str(total_money)+"$ left")
+     play_gan=input("Want to play again? ")
+     play_gan=play_gan.lower()
+    else:
+     print("You have 0$ left\nUr a Brokie, get out of here")
+  elif com_high_card_value<high_card_value:
+    print("You have high card!\nYou Win!")
+    am_won=(total_money-start_money)*-2
+    print("You Won "+ str(am_won) + "$")
+    am_won+=total_money
+    total_money=am_won
+    playagan(total_money)
+  elif com_high_card_value==high_card_value:
+    print("You tied")
+    print("You get it all back")
+    total_money=start_money
+    playagan(total_money)
+
+ elif comhand_value>hand_value:
+   print("Computer Wins")
+   if total_money>0:
+     print("You have " + str(total_money)+"$ left")
+     play_gan=input("Want to play again? ")
+     play_gan=play_gan.lower()
+     print("You get it all back")
+     total_money=start_money
+     playagan(total_money)
+   else:
+     print("You have 0$ left\nUr a Brokie, get out of here")
+ elif hand_value>comhand_value:
+   print("You Win!")
+   am_won=(total_money-start_money)*-2
+   print("You Won "+ str(am_won) + "$")
+   am_won+=total_money
+   total_money=am_won
+   playagan(total_money)
+ elif hand_value==comhand_value:
+   print("You tied")
+   print("You get it all back")
+   total_money=start_money
+   playagan(total_money)
+time.sleep(1)
+print("\nWelcome to Pokeria!")
+loop(total_money)
